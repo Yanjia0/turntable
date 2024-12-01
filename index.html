@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>HPC-AI.COM</title>
+    <style>
+        /* 创建电路发光动画 */
+        @keyframes circuit-glow {
+            0% {
+                opacity: 0.3;
+                box-shadow: 0 0 2px #4dfff3;
+            }
+            50% {
+                opacity: 1;
+                box-shadow: 0 0 10px #4dfff3;
+            }
+            100% {
+                opacity: 0.3;
+                box-shadow: 0 0 2px #4dfff3;
+            }
+        }
+
+        body {
+            text-align: center;
+            padding: 50px;
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            background-color: #148cac;
+            position: relative;
+            overflow-x: hidden; /* 只禁用水平滚动 */
+        }
+
+        /* 修改电路容器定位 */
+        .circuit-container {
+            position: fixed;  /* 保持固定位置 */
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            z-index: -1;
+            min-width: 100vw;  /* 确保覆盖整个视口宽度 */
+            min-height: 100vh; /* 确保覆盖整个视口高度 */
+        }
+
+        .circuit-line {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* 水平线 */
+        .h-line {
+            height: 2px;
+            width: 100px;
+        }
+
+        /* 垂直线 */
+        .v-line {
+            width: 2px;
+            height: 100px;
+        }
+
+        /* 节点 */
+        .node {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            position: absolute;
+        }
+
+        /* 发光的线路 */
+        .glow-line {
+            animation: circuit-glow 2s infinite;
+        }
+
+        #prize-list {
+            margin: 20px auto;
+            width: 300px;
+            background: rgba(255, 255, 255, 0.1);  /* 半透明白色背景 */
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);  /* 毛玻璃效果 */
+        }
+
+        h1 {
+            color: white;
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);  /* 文字发光效果 */
+        }
+
+        /* 其他样式保持不变 */
+        #wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 10px solid #333;
+            position: relative;
+            transition: transform 8s cubic-bezier(0.2, 0, 0.3, 1);
+            box-sizing: border-box;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 18px;
+            background-color: rgba(255, 255, 255, 0.2);  /* 半透明按钮 */
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: all 0.3s ease;
+        }
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 10px rgba(255,255,255,0.5);
+        }
+        #result {
+            margin: 20px auto;
+            font-size: 24px;
+            color: white;  /* 改为白色 */
+            text-shadow: 0 0 10px rgba(255,255,255,0.5);  /* 文字发光效果 */
+            text-align: center;
+        }
+        #wheel-container {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 20px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        #wheel {
+            width: 300px;
+            height: 300px;
+            border-radius: 50%;
+            border: 10px solid #333;
+            position: relative;
+            transition: transform 8s cubic-bezier(0.2, 0, 0.3, 1);
+            box-sizing: border-box;
+        }
+        .prize-item {
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform-origin: 0 0;
+            width: 150px;
+            text-align: center;
+            color: white;
+            font-size: 14px;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+        #pointer {
+            position: absolute;
+            top: -40px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 25px solid transparent;
+            border-right: 25px solid transparent;
+            border-top: 50px solid #333;
+            z-index: 10;
+        }
+        .logo-img {
+            max-width: 500px;  /* 增加最大宽度到 500px */
+            height: auto;
+            margin: 30px 0;    /* 增加上下边距 */
+            filter: drop-shadow(0 0 10px rgba(77, 255, 243, 0.5));
+            transition: filter 0.3s ease;
+        }
+        .logo-img:hover {
+            filter: drop-shadow(0 0 15px rgba(77, 255, 243, 0.8));
+            transform: scale(1.02);  /* 悬停时轻微放大 */
+            transition: all 0.3s ease;
+        }
+
+        /* 添加容器样式 */
+        .game-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 50px;  /* 元素之间的间距 */
+            margin: 40px auto;
+            width: 100%;
+            max-width: 1200px;  /* 限制最大宽度 */
+        }
+
+        #prize-list {
+            width: 250px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+            text-align: left;  /* 文字左对齐 */
+        }
+
+        #prize-list h3 {
+            text-align: center;
+            margin-bottom: 20px;
+            color: white;
+            text-shadow: 0 0 10px rgba(77, 255, 243, 0.5);
+        }
+
+        .control-section {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        button {
+            padding: 15px 30px;  /* 增大按钮尺寸 */
+            font-size: 20px;
+            background-color: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid white;
+            border-radius: 5px;
+            cursor: pointer;
+            margin: 20px auto;
+            transition: all 0.3s ease;
+        }
+
+        button:hover {
+            background-color: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 0 20px rgba(77, 255, 243, 0.5);
+            transform: scale(1.05);
+        }
+
+        #result {
+            margin-top: 20px;
+            font-size: 24px;
+            color: white;
+            text-shadow: 0 0 10px rgba(77, 255, 243, 0.5);
+            text-align: center;
+        }
+
+        /* 添加滚动框样式 */
+        .scroll-box {
+            width: 100%;
+            max-width: 1200px;
+            height: 100px;
+            overflow: hidden;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            margin: 40px auto;
+            position: relative;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            box-sizing: border-box;
+        }
+
+        .scroll-content {
+            position: absolute;
+            width: 100%;
+            animation: scroll 10s linear infinite;
+        }
+
+        @keyframes scroll {
+            0% {
+                transform: translateY(100%);
+            }
+            100% {
+                transform: translateY(-100%);
+            }
+        }
+
+        /* 添加输入框样式 */
+        .email-input {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            color: white;
+            font-size: 16px;
+            box-sizing: border-box;
+            transition: all 0.3s ease;
+        }
+
+        .email-input:focus {
+            outline: none;
+            border-color: rgba(77, 255, 243, 0.8);
+            box-shadow: 0 0 10px rgba(77, 255, 243, 0.3);
+            background: rgba(255, 255, 255, 0.15);
+        }
+
+        .email-input::placeholder {
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 添加错误提示样式 */
+        .error-message {
+            color: #ff4444;
+            font-size: 14px;
+            margin-top: -15px;
+            margin-bottom: 15px;
+            display: none;
+        }
+
+        .control-section {
+            width: 250px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            backdrop-filter: blur(5px);
+        }
+    </style>
+</head>
+<body>
+    <img src="hpcaicom.png" alt="HPC-AI.COM" class="logo-img">
+    <div class="game-container">
+        <div id="prize-list">
+            <h3>奖品列表</h3>
+            <p>特等奖: iPhone 15 Pro</p>
+            <p>一等奖: AirPods Pro</p>
+            <p>二等奖: 100美元代金券</p>
+            <p>三等奖: 20美元代金券</p>
+            <p>安慰奖: 谢谢惠顾</p>
+        </div>
+        
+        <div id="wheel-container">
+            <div id="wheel"></div>
+            <div id="pointer"></div>
+        </div>
+
+        <div class="control-section">
+            <input type="email" 
+                   class="email-input" 
+                   id="email-input"
+                   placeholder="请输入您的邮箱"
+                   required>
+            <div class="error-message" id="email-error">请输入有效的邮箱地址</div>
+            <button onclick="startDraw()">开始抽奖</button>
+            <div id="result"></div>
+        </div>
+    </div>
+
+    <!-- 修改滚动数据框，删除示例数据 -->
+    <div class="scroll-box">
+        <div class="scroll-content" id="scroll-content">
+            <!-- 这里将由真实数据填充 -->
+        </div>
+    </div>
+
+    <script>
+        console.log('Script loaded');
+
+        // 定义奖品及其概率
+        const prizes = [
+            { name: "iPhone 15 Pro", chance: 2 },    // 2%
+            { name: "AirPods Pro", chance: 8 },      // 8%
+            { name: "100美元代金券", chance: 20 },    // 20%
+            { name: "20美元代金券", chance: 20 },     // 20%
+            { name: "小礼品", chance: 50 }           // 50%
+        ];
+
+        // 简化的随机抽奖函数
+        function getRandomPrize() {
+            const random = Math.random() * 100;  // 生成0-100的随机数
+            
+            // 直接根据概率范围返回奖品
+            if (random < 2) {  // 2%概率中iPhone
+                return { index: 0, name: prizes[0].name };
+            } else if (random < 10) {  // 8%概率中AirPods
+                return { index: 1, name: prizes[1].name };
+            } else if (random < 30) {  // 20%概率中100美元
+                return { index: 2, name: prizes[2].name };
+            } else if (random < 50) {  // 20%概率中20美元
+                return { index: 3, name: prizes[3].name };
+            } else {  // 剩余50%概率中小礼品
+                return { index: 4, name: prizes[4].name };
+            }
+        }
+
+        // 添加抽奖次数计数器
+        let drawCount = 0;
+
+        // 初始化转盘
+        function initWheel() {
+            const wheel = document.getElementById('wheel');
+            const prizes = [
+                { name: "iPhone 15 Pro", color: '#FF6B6B' },
+                { name: "AirPods Pro", color: '#FFA06B' },
+                { name: "100美元代金券", color: '#FFD93D' },
+                { name: "20美元代金券", color: '#6BCB77' },
+                { name: "小礼品", color: '#4CACBC' }
+            ];
+            
+            const degreePerItem = 360 / prizes.length;
+            
+            // 重置转盘状态
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            wheel.innerHTML = '';
+            
+            // 设置转盘背景
+            const gradients = prizes.map((prize, index) => {
+                const startDeg = index * degreePerItem;
+                const endDeg = (index + 1) * degreePerItem;
+                return `${prize.color} ${startDeg}deg ${endDeg}deg`;
+            }).join(',');
+            wheel.style.background = `conic-gradient(${gradients})`;
+            
+            // 添加奖品名称
+            prizes.forEach((prize, index) => {
+                const prizeItem = document.createElement('div');
+                prizeItem.className = 'prize-item';
+                prizeItem.textContent = prize.name;
+                
+                const rotation = index * degreePerItem + (degreePerItem / 2);
+                prizeItem.style.transform = `rotate(${rotation}deg) translateX(20px)`;
+                
+                wheel.appendChild(prizeItem);
+            });
+            
+            // 强制重绘后恢复动画属性
+            wheel.offsetHeight;
+            wheel.style.transition = 'transform 6s cubic-bezier(0.2, 0, 0.3, 1)';
+        }
+
+        // 修改页面加载函数
+        window.onload = function() {
+            createCircuit();  // 创建电路图案
+            initWheel();      // 初始化转盘
+            loadHistory();    // 加载历史记录
+        };
+
+        // 创建电路图案
+        function createCircuit() {
+            const container = document.createElement('div');
+            container.className = 'circuit-container';
+            document.body.appendChild(container);
+
+            // 根据视口大小计算电路数量
+            const density = 0.0001; // 每平方像素的电路密度
+            const circuitCount = Math.floor(window.innerWidth * window.innerHeight * density);
+            
+            // 创建电路
+            for (let i = 0; i < circuitCount; i++) {
+                createCircuitElement(container);
+            }
+
+            // 随机发光效果
+            setInterval(() => {
+                const lines = document.querySelectorAll('.circuit-line');
+                lines.forEach(line => {
+                    line.classList.remove('glow-line');
+                    if (Math.random() < 0.1) {
+                        line.classList.add('glow-line');
+                    }
+                });
+            }, 2000);
+
+            // 添加窗口调整大小的处理
+            window.addEventListener('resize', debounce(() => {
+                // 清除现有电路
+                container.innerHTML = '';
+                // 重新计算并创建电路
+                const newCircuitCount = Math.floor(window.innerWidth * window.innerHeight * density);
+                for (let i = 0; i < newCircuitCount; i++) {
+                    createCircuitElement(container);
+                }
+            }, 250));
+        }
+
+        function createCircuitElement(container) {
+            // 使用视口大小来计算位置
+            const x = Math.random() * Math.max(window.innerWidth, container.offsetWidth);
+            const y = Math.random() * Math.max(window.innerHeight, container.offsetHeight);
+
+            // 创建节点
+            const node = document.createElement('div');
+            node.className = 'node';
+            node.style.left = `${x}px`;
+            node.style.top = `${y}px`;
+            container.appendChild(node);
+
+            // 创建连接线
+            if (Math.random() < 0.5) {
+                const line = document.createElement('div');
+                line.className = 'circuit-line h-line';
+                line.style.left = `${x}px`;
+                line.style.top = `${y + 3}px`;
+                container.appendChild(line);
+            } else {
+                const line = document.createElement('div');
+                line.className = 'circuit-line v-line';
+                line.style.left = `${x + 3}px`;
+                line.style.top = `${y}px`;
+                container.appendChild(line);
+            }
+        }
+
+        // 防抖函数
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => {
+                    clearTimeout(timeout);
+                    func(...args);
+                };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        // 添加邮箱验证和抽奖函数
+        function validateEmail(email) {
+            console.log('Validating email:', email);
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        // 修改抽奖函数，移除全局状态
+        async function drawPrize(email) {
+            const wheel = document.getElementById('wheel');
+            const button = document.querySelector('button');
+            
+            if (button.disabled) {
+                return;
+            }
+            
+            // 禁用按钮
+            button.disabled = true;
+            
+            // 重置转盘状态
+            wheel.style.transition = 'none';
+            wheel.style.transform = 'rotate(0deg)';
+            // 强制重绘
+            wheel.offsetHeight;
+            // 恢复动画属性
+            wheel.style.transition = 'transform 6s cubic-bezier(0.2, 0, 0.3, 1)';
+            
+            // 获取随机奖品
+            const random = Math.random() * 100;
+            let prize;
+            
+            // 根据随机数决定奖品
+            if (random < 2) {
+                prize = { index: 0, name: "iPhone 15 Pro" };
+            } else if (random < 10) {
+                prize = { index: 1, name: "AirPods Pro" };
+            } else if (random < 30) {
+                prize = { index: 2, name: "100美元代金券" };
+            } else if (random < 50) {
+                prize = { index: 3, name: "20美元代金券" };
+            } else {
+                prize = { index: 4, name: "小礼品" };
+            }
+            
+            console.log('本次抽奖随机数:', random, '中奖奖品:', prize.name);
+            
+            // 计算旋转角度
+            const baseRotation = 360 * 5;  // 基础转动5圈
+            const singleSlice = 360 / 5;   // 每个奖品占72度
+            const prizeRotation = prize.index * singleSlice;
+            const targetRotation = baseRotation + prizeRotation + 108;
+            
+            // 设置新的转盘动画
+            requestAnimationFrame(() => {
+                wheel.style.transform = `rotate(-${targetRotation}deg)`;
+            });
+            
+            // 等待动画完成
+            setTimeout(async () => {
+                // 显示结果
+                document.getElementById('result').innerHTML = `恭喜您抽中了: ${prize.name}`;
+                
+                try {
+                    // 记录抽奖结果
+                    const response = await fetch('/record', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            email: email,
+                            prize: prize.name,
+                            random: random
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('保存记录失败');
+                    }
+                    
+                    await loadHistory();
+                    
+                } catch (error) {
+                    console.error('Error:', error);
+                    alert(error.message);
+                } finally {
+                    // 重置按钮状态
+                    button.disabled = false;
+                }
+            }, 6500);
+        }
+
+        // 修改开始抽奖函数
+        function startDraw() {
+            const emailInput = document.getElementById('email-input');
+            const errorMessage = document.getElementById('email-error');
+            const email = emailInput.value.trim();
+            const button = document.querySelector('button');
+
+            if (!validateEmail(email)) {
+                errorMessage.style.display = 'block';
+                emailInput.focus();
+                return;
+            }
+
+            if (button.disabled) {
+                console.log('Still spinning, cannot start new draw');  // 调试日志
+                return;
+            }
+
+            console.log('Starting new draw');  // 调试日志
+            errorMessage.style.display = 'none';
+            drawPrize(email);
+        }
+
+        // 添加转盘动画结束事件监听
+        document.getElementById('wheel').addEventListener('transitionend', function() {
+            console.log('Wheel transition ended');  // 调试日志
+        });
+
+        // 删除原有的 addScrollData 函数，改用 loadHistory 函数
+        async function loadHistory() {
+            try {
+                const response = await fetch('/history');
+                const records = await response.json();
+                
+                const scrollContent = document.getElementById('scroll-content');
+                scrollContent.innerHTML = '';
+                
+                // 按时间倒序排序
+                records.sort((a, b) => {
+                    const dateA = new Date(a.日期 + ' ' + a.时间);
+                    const dateB = new Date(b.日期 + ' ' + b.时间);
+                    return dateB - dateA;
+                });
+                
+                // 显示记录
+                records.forEach(record => {
+                    const maskedEmail = record.邮箱.replace(/(.{3}).*(@.*)/, '$1***$2');
+                    const p = document.createElement('p');
+                    p.textContent = `${maskedEmail}【${record.日期} ${record.时间}】 抽中了${record.奖品}`;
+                    scrollContent.appendChild(p);
+                });
+            } catch (error) {
+                console.error('Error loading history:', error);
+            }
+        }
+
+        // 定期刷新历史记录
+        setInterval(loadHistory, 30000); // 每30秒刷新一次
+    </script>
+</body>
+</html>
