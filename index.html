@@ -330,12 +330,12 @@
     <img src="hpcaicom.png" alt="HPC-AI.COM" class="logo-img">
     <div class="game-container">
         <div id="prize-list">
-            <h3>奖品列表</h3>
-            <p>特等奖: iPhone 15 Pro</p>
-            <p>一等奖: AirPods Pro</p>
-            <p>二等奖: 100美元代金券</p>
-            <p>三等奖: 20美元代金券</p>
-            <p>安慰奖: 谢谢惠顾</p>
+            <h3>Prize List</h3>
+            <p>Grand Prize: iPhone 16</p>
+            <p>First Prize: AirPods</p>
+            <p>Second Prize: 100USD Voucher</p>
+            <p>Third Prize: 20USD Voucher</p>
+            <p>Consolation Prize: On-site Photo</p>
         </div>
         
         <div id="wheel-container">
@@ -347,10 +347,10 @@
             <input type="email" 
                    class="email-input" 
                    id="email-input"
-                   placeholder="请输入您的邮箱"
+                   placeholder="Please enter a valid email address"
                    required>
-            <div class="error-message" id="email-error">请输入有效的邮箱地址</div>
-            <button onclick="startDraw()">开始抽奖</button>
+            <div class="error-message" id="email-error">Please enter a valid email address</div>
+            <button onclick="startDraw()">Start</button>
             <div id="result"></div>
         </div>
     </div>
@@ -369,9 +369,9 @@
         const prizes = [
             { name: "iPhone 15 Pro", chance: 2 },    // 2%
             { name: "AirPods Pro", chance: 8 },      // 8%
-            { name: "100美元代金券", chance: 20 },    // 20%
-            { name: "20美元代金券", chance: 20 },     // 20%
-            { name: "小礼品", chance: 50 }           // 50%
+            { name: "100USD Voucher", chance: 20 },    // 20%
+            { name: "20USD Voucher", chance: 20 },     // 20%
+            { name: "On-site Photo", chance: 50 }           // 50%
         ];
 
         // 简化的随机抽奖函数
@@ -399,11 +399,11 @@
         function initWheel() {
             const wheel = document.getElementById('wheel');
             const prizes = [
-                { name: "iPhone 15 Pro", color: '#FF6B6B' },
-                { name: "AirPods Pro", color: '#FFA06B' },
-                { name: "100美元代金券", color: '#FFD93D' },
-                { name: "20美元代金券", color: '#6BCB77' },
-                { name: "小礼品", color: '#4CACBC' }
+                { name: "iPhone 16", color: '#FF6B6B' },
+                { name: "AirPods", color: '#FFA06B' },
+                { name: "100USD Voucher", color: '#FFD93D' },
+                { name: "20USD Voucher", color: '#6BCB77' },
+                { name: "On-site Photo", color: '#4CACBC' }
             ];
             
             const degreePerItem = 360 / prizes.length;
@@ -557,15 +557,15 @@
             
             // 根据随机数决定奖品
             if (random < 2) {
-                prize = { index: 0, name: "iPhone 15 Pro" };
+                prize = { index: 0, name: "iPhone 16" };
             } else if (random < 10) {
-                prize = { index: 1, name: "AirPods Pro" };
+                prize = { index: 1, name: "AirPods" };
             } else if (random < 30) {
-                prize = { index: 2, name: "100美元代金券" };
+                prize = { index: 2, name: "100USD Voucher" };
             } else if (random < 50) {
-                prize = { index: 3, name: "20美元代金券" };
+                prize = { index: 3, name: "20USD Voucher" };
             } else {
-                prize = { index: 4, name: "小礼品" };
+                prize = { index: 4, name: "On-site Photo" };
             }
             
             console.log('本次抽奖随机数:', random, '中奖奖品:', prize.name);
@@ -584,7 +584,7 @@
             // 等待动画完成
             setTimeout(async () => {
                 // 显示结果
-                document.getElementById('result').innerHTML = `恭喜您抽中了: ${prize.name}`;
+                document.getElementById('result').innerHTML = `Congratulations! You won: ${prize.name}`;
                 
                 try {
                     // 记录抽奖结果
@@ -664,7 +664,7 @@
                 records.forEach(record => {
                     const maskedEmail = record.邮箱.replace(/(.{3}).*(@.*)/, '$1***$2');
                     const p = document.createElement('p');
-                    p.textContent = `${maskedEmail}【${record.日期} ${record.时间}】 抽中了${record.奖品}`;
+                    p.textContent = `${maskedEmail}【${record.日期} ${record.时间}】 won ${record.奖品}`;
                     scrollContent.appendChild(p);
                 });
             } catch (error) {
